@@ -1,5 +1,9 @@
 #!/bin/bash
 
+export HTTP_NGINX_AUTOINDEX_EXACT_SIZE=${HTTP_NGINX_AUTOINDEX_EXACT_SIZE:-off}
+
+defined_envs=$(printf '${%s} ' $(env | cut -d= -f1))
+
 # make our folders
 mkdir -p \
   /assets \
@@ -12,8 +16,15 @@ mkdir -p \
 # copy config files
 [[ ! -f /config/nginx/nginx.conf ]] && \
   cp /defaults/nginx.conf /config/nginx/nginx.conf
+
 [[ ! -f /config/nginx/site-confs/default ]] && \
   cp /defaults/default /config/nginx/site-confs/default
+
+[[ -f /defaults/default.template ]] && \
+  envsubst "$defined_envs" < /defaults/default.template > /config/nginx/site-confs/default
+
+[[ -f /defaults/nginx.conf.template ]] && \
+  envsubst "$defined_envs" < /defaults/nginx.conf.template > /config/nginx/nginx.conf
   
 # Ownership
 chown -R nbxyz:nbxyz /assets
@@ -70,6 +81,13 @@ if [[ ! -f /config/menus/remote/menu.ipxe ]]; then
   echo -n ${MENU_VERSION} > /config/menuversion.txt
   cp -r /config/menus/remote/* /config/menus
   rm -f /tmp/menus.tar.gz
+fi
+
+[ ! -d /config/menus/local ] && mkdir /config/menus/local
+
+if [ -f /defaults/archlinux.ipxe.template ]; then
+	envsubst "$defined_envs" < /defaults/archlinux.ipxe.template > /config/menus/local/archlinux.ipxe
+	envsubst "$defined_envs" < /defaults/archlinux.ipxe.template > /config/menus/archlinux.ipxe
 fi
 
 # Ownership

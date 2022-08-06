@@ -5,7 +5,7 @@ ARG BUILD_DATE
 ARG VERSION
 ARG WEBAPP_VERSION
 LABEL build_version="netboot.xyz version: ${VERSION} Build-date: ${BUILD_DATE}"
-LABEL maintainer="antonym"
+LABEL maintainer="flyingfishflash"
 
 RUN \
  apk add --no-cache --virtual=build-dependencies \
@@ -15,6 +15,7 @@ RUN \
         bash \
         busybox \
         curl \
+        gettext \
         git \
         jq \
         nghttp2-dev \
