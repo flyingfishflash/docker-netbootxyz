@@ -1,0 +1,75 @@
+# drone secrets:
+# registry_mirror = http://registry-mirror.domain.tld
+# repository = registry.domain.tld/namespace/image-name
+# repository_development = registry.domain.tld/namespace/image-name
+# ssh_username
+# ssh_host_dev
+# ssh_host_prd
+# ssh_key
+
+kind: pipeline
+name: "publish"
+type: docker
+
+trigger:
+  event:
+    - push
+    - tag
+  ref:
+    - refs/heads/flyingfishflash
+    - refs/tags/*
+
+steps:
+  - name: fetch git tags
+    image: alpine/git
+    commands:
+      - git fetch --tags
+
+  - name: publish development
+    image: thegeeklab/drone-docker-buildx
+    privileged: true
+    depends_on:
+      - "fetch git tags"
+    settings:
+      auto_tag: false
+      cache_from:
+        from_secret: repository_development
+      custom_dns:
+        from_secret: custom_dns
+      mirror:
+        from_secret: registry_mirror
+      platforms: linux/amd64,linux/arm/v7
+      repo:
+        from_secret: repository_development
+      tags: development
+    when:
+      ref:
+        - refs/heads/flyingfishflash
+
+  - name: create tag list
+    image: alpine/git
+    commands:
+      - echo -n "latest,${DRONE_TAG}" > .tags
+    when:
+      ref:
+        - refs/tags/*-flyingfishflash
+
+  - name: publish release
+    image: plugins/docker
+    privileged: true
+    depends_on:
+      - "create tag list"
+    settings:
+      auto_tag: false
+      cache_from:
+        from_secret: repository
+      custom_dns:
+        from_secret: custom_dns
+      mirror:
+        from_secret: registry_mirror
+      platforms: linux/amd64,linux/arm/v7
+      repo:
+        from_secret: repository
+    when:
+      ref:
+        - refs/tags/*-flyingfishflash
