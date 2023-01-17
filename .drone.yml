@@ -29,10 +29,8 @@ steps:
       - "fetch git tags"
     settings:
       auto_tag: false
-      cache_from:
-        from_secret: repository
-      custom_dns:
-        from_secret: custom_dns
+      # custom_dns:
+      #   from_secret: custom_dns
       registry:
         from_secret: registry_hostname
       repo:
@@ -60,12 +58,8 @@ steps:
       - "create tag list"
     settings:
       auto_tag: false
-      cache_from:
-        from_secret: repository
-      custom_dns:
-        from_secret: custom_dns
-      mirror:
-        from_secret: registry_mirror
+      # custom_dns:
+      #   from_secret: custom_dns
       registry:
         from_secret: registry_hostname
       repo:
