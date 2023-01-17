@@ -1,5 +1,4 @@
 # drone secrets:
-# registry_mirror = http://registry-mirror.domain.tld
 # repository = registry.domain.tld/namespace/image-name
 # ssh_username
 # ssh_host_dev
@@ -34,10 +33,14 @@ steps:
         from_secret: repository
       custom_dns:
         from_secret: custom_dns
-      mirror:
-        from_secret: registry_mirror
+      registry:
+        from_secret: registry_hostname
       repo:
         from_secret: repository
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
       tags: development
     when:
       ref:
@@ -63,8 +66,14 @@ steps:
         from_secret: custom_dns
       mirror:
         from_secret: registry_mirror
+      registry:
+        from_secret: registry_hostname
       repo:
         from_secret: repository
+      username:
+        from_secret: registry_username
+      password:
+        from_secret: registry_password
     when:
       ref:
         - refs/tags/*-flyingfishflash
